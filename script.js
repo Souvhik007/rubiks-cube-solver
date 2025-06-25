@@ -40,30 +40,31 @@ class Cube {
     this.history.push(face);
   }
 
-  scramble(times = 20) {
-    const faces = ['U', 'R', 'F', 'D', 'L', 'B'];
-    for (let i = 0; i < times; i++) {
-      const move = faces[Math.floor(Math.random() * faces.length)];
-      this.rotate(move); // Adds move to history
-    }
+  scramble() {
+  const colors = ['w', 'r', 'g', 'y', 'o', 'b'];
+  for (let face in this.faces) {
+    this.faces[face] = Array(9).fill(null).map(() =>
+      colors[Math.floor(Math.random() * colors.length)]
+    );
   }
+  this.history = []; // Reset previous history
+}
 
-  solveAnimated(callback = () => {}) {
-    const interval = setInterval(() => {
-      if (this.history.length === 0) {
-        clearInterval(interval);
-        callback();
-        return;
-      }
-      const move = this.history.pop();
-      for (let i = 0; i < 3; i++) this.rotate(move); // 3x = reverse
-      renderCube();
-    }, 300); // Animation speed
-  }
+
+ solve() {
+  this.faces = {
+    U: Array(9).fill('w'),
+    R: Array(9).fill('r'),
+    F: Array(9).fill('g'),
+    D: Array(9).fill('y'),
+    L: Array(9).fill('o'),
+    B: Array(9).fill('b'),
+  };
+  this.history = [];
+}
 }
 
 // ========== DOM ==========
-
 const cube = new Cube();
 
 function renderCube() {
@@ -71,6 +72,7 @@ function renderCube() {
   document.getElementById("cube-display").innerHTML = getCubeSvg(cubeString);
 }
 
+// Bind buttons safely after DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("scramble-btn").addEventListener("click", () => {
     cube.scramble();
@@ -78,8 +80,9 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.getElementById("solve-btn").addEventListener("click", () => {
-    cube.solveAnimated();
+    cube.solve();
+    renderCube();
   });
 
-  renderCube(); // Render solved cube on load
+  renderCube(); // show cube initially
 });
